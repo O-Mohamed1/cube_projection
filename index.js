@@ -48,11 +48,11 @@ function calculateCube(WIDTH){//could do everything here, just move everything f
 }
 
 //func3 will calculate how much to move the points
-function calculateSquareDistance(sliceIndex){//could remove everything except return TOTAL_DISTANCE*(.9375^sliceIndex) since x^0 == 1
+function calculateSquareDistance(sliceIndex){//could remove everything except return TOTAL_DISTANCE*(.9375^sliceIndex)/WIDTH since x^0 == 1
     if(sliceIndex==0){//first slice
         return TOTAL_DISTANCE/WIDTH; //starting squareDistance
     }else{
-        return TOTAL_DISTANCE*(.9375^sliceIndex); //exponentially shorten distances between squares in subsequent slices
+        return TOTAL_DISTANCE*(.9375^sliceIndex)/WIDTH; //exponentially shorten distances between squares in subsequent slices
     }
 } //calculate distance between squares, based on the number of squares in the cube.
 // density will be hardcoded at first, then made a variable later, by shortening squareDistance
@@ -110,7 +110,7 @@ and save the position of the cubes in a matrix. here is where i could possibly a
 -func3 will calculate how much to move the points, 
 depending on how far away they are from the middle of the cube.
 it will need to find the middle, then move it away or closer depending on if it is passed the 
-position of the middle in the matrix.
+position of the middle in the matrix. this involves some real 3D calculations, how would I know exactly where a point is otherwise?
 
 -func4 will forEach the arrays in the matrix and print them as square elements on html
 */
