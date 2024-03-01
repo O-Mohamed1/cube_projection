@@ -1,57 +1,99 @@
-const body = document.body
-const grid = document.createElement("div")
+// const body = document.body
+// const grid = document.createElement("div")
+
+//const pixels = 20 //width of each square in pixels
+const TOTAL_DISTANCE = 800 //distance of entire cube
+const WIDTH = 10 //width of cube in points, lets say 1 square will be 20 pixels, distance should start around 800,
+let cube = []
 
 //func1 make a grid to place the cube on, based on pixels i guess?
 function makeGrid(){
     //some code that makes grid certain number of pixels to plot squares on
-    body.appendChild(grid)
+    // body.appendChild(grid)
 }
+
 //makeGrid()
+function printSquare(squarePosition){
+    // const square = document.createElement("div")
+    // square.classList.add("square")
+    // grid.appendChild(square)
+
+    // square.style.margin-left: -5%; 
+    // make all squares relative to start of line rather than each other?
+    // squarePosition=squareDistance+ last square position
+
+    // const currentPosition = square.getBoundingClientRect();
+    // square.style.left = currentPosition.left + x + 'px'
+    // square.style.top = currentPosition.top + 'px'
+}
 
 //func2 will calculate a cube depending on density of dots, by doing something like 10x10x10, 
 //and save the position of the cubes in a matrix. here is where i could possibly add cube rotation
+function calculateCube(WIDTH){//could do everything here, just move everything from other loops to where they belong here
+    if(WIDTH<2){
+        console.log("wyd")
+    }
+    for (let i = 0; i<WIDTH; i++){ // turn this into recursion or WIDTH^3 somehow, current way is just too slow
+        let slice = []
+        for (let j = 0; j<WIDTH; j++){
+            let line = []
+            for (let k = 0; k<WIDTH; k++){
+                line.push(1) // add 1 square to a line, WIDTH number of times
+            }
+            slice.push(line) // add 1 line of WIDTH squares to a slice, WIDTH number of times
+        }
+        cube.push(slice) // add 1 slice of WIDTH lines with WIDTH squares to the cube, WIDTH number of times
+    }
+    return cube
+}
 
-//func3 will calculate how much to move the points, 
-//depending on how far away they are from the middle of the cube.
-//it will need to find the middle, then move it away or closer depending on if it is passed the 
-//position of the middle in the matrix.
+//func3 will calculate how much to move the points
+function calculateSquareDistance(sliceIndex){//could remove everything except return TOTAL_DISTANCE*(.9375^sliceIndex) since x^0 == 1
+    if(sliceIndex==0){//first slice
+        return TOTAL_DISTANCE/WIDTH; //starting squareDistance
+    }else{
+        return TOTAL_DISTANCE*(.9375^sliceIndex); //exponentially shorten distances between squares in subsequent slices
+    }
+} //calculate distance between squares, based on the number of squares in the cube.
+// density will be hardcoded at first, then made a variable later, by shortening squareDistance
+
 
 //func4 will forEach the arrays in the matrix and print them as square elements on html
 function outputCube(){
-    /*
-    need code1 to calculate distance between squares, based on the number of squares in the cube.
-    density will be hardcoded at first, then made variable later
+    calculateCube()
+    let squareDistance = calculateSquareDistance(0) //starting square distance
 
-    code2 will make cube array, which holds slices array, which holds lines array, which holds
-    objects square{data;distance;} where data is the actual square that gets printed and distance
-    is the distance between the dots.
-    */
+    let sliceLocation = 0; //keeps track of where current slice will be printed, first slice/line/square starts at the top left
+    let lineDisplacement = ()=>{return (TOTAL_DISTANCE-squareDistance*WIDTH)/2}; //this is the gap added to each subsequent line
+    let squarePosition = 0 //keeps track of where current square will be printed, first square at the start of the line
 
-    //forEach instead of for, on the matrix
-    /*
-    let currentSpot = 0; //first slice/line/square starts at the top left
-    currentSpot+= (line[square].distance/certainAmount) //this is how much to move each slice, changes per slice
-    //currentSpot to the right, and currentSpot downwards 
+    //unique about each slice: they each start at a different position, and have different square distances
+    cube.forEach(slice, sliceIndex=>{//go slice by slice in the cube, starting with the front face
+        squareDistance = calculateSquareDistance(sliceIndex)//goes at start of each slice, each one has unique distance
+        sliceLocation = lineDisplacement //this is how much to move each slice, changes per slice
 
-    cube.forEach(slice=>{//go slice by slice in the cube, starting with the front face
+        //each line is sliceLocation down, and right
         slice.forEach(line=>{//go line by line in the slice, starting with the top line
+            squarePosition = sliceLocation//goes at first square of each line
+
             line.forEach(square=>{//go square by square in the line, starting with the top left
-                print square.data
-                move square.distance units to the right
+                printSquare(squarePosition, sliceLocation)//print square
+                squarePosition += squareDistance //next square's position relative to the left side of the image, goes after each square is printed
+
             })
-            move to next line position, square.distance units down
+            //!move to next line position, sliceLocation units down and right
+
         })
+
     })
         
-    */
-    for(let i=0; i<50; i++){
-        const square = document.createElement("div")
-        square.classList.add("square")
-        grid.appendChild(square)
-    }
-    body.appendChild(grid)
+    // body.appendChild(grid)
 }
-outputCube()
+printSquare()
+
+//when done, rename squares to dots and rename slices to squares
+//and turn it from OOP to regular program, because why am a making a matrix of 1000 dots when i could just do 10^3? all the loops are the same. recurse maybe?
+//prints 1 slice, changes variables, recurses and prints second slice, etc. until it runs out of slices. thats how you make this all 1 recursive function
 
 //this is an easy way, no possibility to rotate the cube though:
 //it will start with first face, then go in 1 unit at a time printing squares. maybe add intervals
