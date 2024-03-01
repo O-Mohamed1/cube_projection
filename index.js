@@ -1,5 +1,5 @@
-// const body = document.body
-// const grid = document.createElement("div")
+const BODY = document.body
+const WINDOW = document.getElementById("image")
 
 //const pixels = 20 //width of each square in pixels
 const TOTAL_DISTANCE = 800 //distance of entire cube
@@ -13,15 +13,17 @@ function makeGrid(){
 }
 
 //makeGrid()
-function printSquare(squarePosition){
-    // const square = document.createElement("div")
-    // square.classList.add("square")
-    // grid.appendChild(square)
+function printSquare(squarePosition,lineDisplacement,sliceIndex){
+    const SQUARE = document.createElement("div")
+    SQUARE.classList.add("square")
+    
+    //!some way to move element squarePosition units right
+    //!move element lineDisplacement units down, maybe based on percentage?
+    SQUARE.style.marginLeft = `${squarePosition}px`;
+    SQUARE.style.marginTop = `${lineDisplacement}px`;
+    SQUARE.style.zIndex = `${sliceIndex+2}px`; //move upwards in Z direction to avoid collision, +2 because sliceIndex starts at 0 and background z-index is 1
 
-    // square.style.margin-left: -5%; 
-    // make all squares relative to start of line rather than each other?
-    // squarePosition=squareDistance+ last square position
-
+    WINDOW.appendChild(SQUARE)
     // const currentPosition = square.getBoundingClientRect();
     // square.style.left = currentPosition.left + x + 'px'
     // square.style.top = currentPosition.top + 'px'
@@ -29,7 +31,7 @@ function printSquare(squarePosition){
 
 //func2 will calculate a cube depending on density of dots, by doing something like 10x10x10, 
 //and save the position of the cubes in a matrix. here is where i could possibly add cube rotation
-function calculateCube(WIDTH){//could do everything here, just move everything from other loops to where they belong here
+function calculateCube(WIDTH){//could do everything here, just move everything from other loops to where they belong here. That way I act on the data as it is produced
     if(WIDTH<2){
         console.log("wyd")
     }
@@ -68,15 +70,15 @@ function outputCube(){
     let squarePosition = 0 //keeps track of where current square will be printed, first square at the start of the line
 
     //unique about each slice: they each start at a different position, and have different square distances
-    cube.forEach(slice, sliceIndex=>{//go slice by slice in the cube, starting with the front face
+    cube.forEach(slice, sliceIndex=>{//go forward slice by slice in the cube, starting with the front face
         squareDistance = calculateSquareDistance(sliceIndex)//goes at start of each slice, each one has unique distance
-        sliceLocation = lineDisplacement //this is how much to move each slice, changes per slice
+        sliceLocation = lineDisplacement() //this is how much to move each slice, changes per slice
 
         //each line is sliceLocation down, and right
-        slice.forEach(line=>{//go line by line in the slice, starting with the top line
-            squarePosition = sliceLocation//goes at first square of each line
+        slice.forEach(line=>{//go down line by line in the slice, starting with the top line
+            squarePosition = sliceLocation//position of first square of each line
 
-            line.forEach(square=>{//go square by square in the line, starting with the top left
+            line.forEach(square=>{//go right square by square in the line, starting with the left
                 printSquare(squarePosition, sliceLocation)//print square
                 squarePosition += squareDistance //next square's position relative to the left side of the image, goes after each square is printed
 
@@ -87,9 +89,11 @@ function outputCube(){
 
     })
         
-    // body.appendChild(grid)
+    // BODY.appendChild(WINDOW)
 }
-printSquare()
+printSquare(0,0,0)
+printSquare(30,15,1)
+printSquare(40,0,2)
 
 //when done, rename squares to dots and rename slices to squares
 //and turn it from OOP to regular program, because why am a making a matrix of 1000 dots when i could just do 10^3? all the loops are the same. recurse maybe?
