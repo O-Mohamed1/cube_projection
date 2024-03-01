@@ -7,8 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body id="body">
+    <form onsubmit="submitted();return false">
+        Enter width of the cube in dots: <input type="text" id="width"> 
+        Enter the viewing distance: <input type="text" id="distance"> 
+        <input type="submit">
+    </form>
     <div id="image" class="image"></div>
-    
+
     <script src="index.js"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 # cube_projection
 Cube projection
 
-Trying to recreate a project my friend did for their 3rd year CS class. They printed a 2D cube out of tiny blue squares.
+Projects a 3D cube of dots onto a 2D surface. 
+(Very rushed, didn't implement recursion or other simpler functions)
