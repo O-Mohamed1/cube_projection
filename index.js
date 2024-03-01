@@ -61,11 +61,14 @@ function outputCube(){
     calculateCube(WIDTH)
     let squareDistance = calculateSquareDistance(0) //starting square distance
 
-    let sliceLocation = 0; //keeps track of where current slice will be printed, first slice/line/square starts at the top left
+    let sliceLocation = 0;   //keeps track of where current slice will be printed, first slice/line/square starts at the top left
+    let linePositionY = 0;   //keeps track of where current line will be printed
+    let squarePositionX = 0; //keeps track of where current square will be printed, first square at the start of the line
+
     function lineDisplacement(){
         return ((TOTAL_DISTANCE-squareDistance*WIDTH)/2)
     }; //this is the gap added to each subsequent line
-    let squarePositionX = 0 //keeps track of where current square will be printed, first square at the start of the line
+
 
     //unique about each slice: they each start at a different position, and have different square distances
     cube.forEach((slice, sliceIndex)=>{//go forward slice by slice in the cube, starting with the front face
@@ -73,17 +76,18 @@ function outputCube(){
         sliceLocation = lineDisplacement() //this is how much to move each slice, changes per slice
         console.log(sliceLocation)
         console.log(squareDistance)
+
+        linePositionY = sliceLocation
         //each line is sliceLocation down, and right
         slice.forEach(line=>{//go down line by line in the slice, starting with the top line
             squarePositionX = sliceLocation//position of first square of each line
 
             line.forEach(square=>{//go right square by square in the line, starting with the left
-                //let num = (TOTAL_DISTANCE-squareDistance*WIDTH)/2;
-                printSquare(squarePositionX, sliceLocation, sliceIndex)//print square
+                printSquare(squarePositionX, linePositionY, sliceIndex)//print square
                 squarePositionX += squareDistance //next square's position relative to the left side of the image, goes after each square is printed
-
+                
             })
-            //!move to next line position, sliceLocation units down and right
+            linePositionY+= squareDistance
 
         })
 
