@@ -1,8 +1,8 @@
 .square {
     position: absolute;
     z-index: 2;
-    height: 20px;
-    width: 20px;
+    height: 15px;
+    width: 15px;
     background-color: #2b92ca;
 }
 
@@ -11,6 +11,8 @@
     z-index: 1;
     height: 800px;
     width: 800px;
+    margin: 15px;
+    border: 15px;
     background-color: #303f47;
 }
 
@@ -19,4 +21,5 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between; 
+    background-color: #303f47;
 }

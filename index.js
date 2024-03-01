@@ -13,14 +13,14 @@ function makeGrid(){
 }
 
 //makeGrid()
-function printSquare(squarePosition,lineDisplacement,sliceIndex){
+function printSquare(squarePosition,num,sliceIndex){
     const SQUARE = document.createElement("div")
     SQUARE.classList.add("square")
     
     //!some way to move element squarePosition units right
     //!move element lineDisplacement units down, maybe based on percentage?
     SQUARE.style.marginLeft = `${squarePosition}px`;
-    SQUARE.style.marginTop = `${lineDisplacement}px`;
+    SQUARE.style.marginTop = `${num}px`;
     SQUARE.style.zIndex = `${sliceIndex+2}px`; //move upwards in Z direction to avoid collision, +2 because sliceIndex starts at 0 and background z-index is 1
 
     WINDOW.appendChild(SQUARE)
@@ -51,36 +51,36 @@ function calculateCube(WIDTH){//could do everything here, just move everything f
 
 //func3 will calculate how much to move the points
 function calculateSquareDistance(sliceIndex){//could remove everything except return TOTAL_DISTANCE*(.9375^sliceIndex)/WIDTH since x^0 == 1
-    if(sliceIndex==0){//first slice
-        return TOTAL_DISTANCE/WIDTH; //starting squareDistance
-    }else{
-        return TOTAL_DISTANCE*(.9375^sliceIndex)/WIDTH; //exponentially shorten distances between squares in subsequent slices
-    }
+    return (TOTAL_DISTANCE*(.9375**sliceIndex)/WIDTH); //exponentially shorten distances between squares in subsequent slices
 } //calculate distance between squares, based on the number of squares in the cube.
 // density will be hardcoded at first, then made a variable later, by shortening squareDistance
 
 
 //func4 will forEach the arrays in the matrix and print them as square elements on html
 function outputCube(){
-    calculateCube()
+    calculateCube(WIDTH)
     let squareDistance = calculateSquareDistance(0) //starting square distance
 
     let sliceLocation = 0; //keeps track of where current slice will be printed, first slice/line/square starts at the top left
-    let lineDisplacement = ()=>{return (TOTAL_DISTANCE-squareDistance*WIDTH)/2}; //this is the gap added to each subsequent line
-    let squarePosition = 0 //keeps track of where current square will be printed, first square at the start of the line
+    function lineDisplacement(){
+        return ((TOTAL_DISTANCE-squareDistance*WIDTH)/2)
+    }; //this is the gap added to each subsequent line
+    let squarePositionX = 0 //keeps track of where current square will be printed, first square at the start of the line
 
     //unique about each slice: they each start at a different position, and have different square distances
-    cube.forEach(slice, sliceIndex=>{//go forward slice by slice in the cube, starting with the front face
+    cube.forEach((slice, sliceIndex)=>{//go forward slice by slice in the cube, starting with the front face
         squareDistance = calculateSquareDistance(sliceIndex)//goes at start of each slice, each one has unique distance
         sliceLocation = lineDisplacement() //this is how much to move each slice, changes per slice
-
+        console.log(sliceLocation)
+        console.log(squareDistance)
         //each line is sliceLocation down, and right
         slice.forEach(line=>{//go down line by line in the slice, starting with the top line
-            squarePosition = sliceLocation//position of first square of each line
+            squarePositionX = sliceLocation//position of first square of each line
 
             line.forEach(square=>{//go right square by square in the line, starting with the left
-                printSquare(squarePosition, sliceLocation)//print square
-                squarePosition += squareDistance //next square's position relative to the left side of the image, goes after each square is printed
+                //let num = (TOTAL_DISTANCE-squareDistance*WIDTH)/2;
+                printSquare(squarePositionX, sliceLocation, sliceIndex)//print square
+                squarePositionX += squareDistance //next square's position relative to the left side of the image, goes after each square is printed
 
             })
             //!move to next line position, sliceLocation units down and right
@@ -88,12 +88,13 @@ function outputCube(){
         })
 
     })
-        
+    console.log(cube)
     // BODY.appendChild(WINDOW)
 }
-printSquare(0,0,0)
-printSquare(30,15,1)
-printSquare(40,0,2)
+// printSquare(0,0,0)
+// printSquare(30,15,1)
+// printSquare(40,0,2)
+outputCube()
 
 //when done, rename squares to dots and rename slices to squares
 //and turn it from OOP to regular program, because why am a making a matrix of 1000 dots when i could just do 10^3? all the loops are the same. recurse maybe?
