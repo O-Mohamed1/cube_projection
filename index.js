@@ -23,7 +23,7 @@ function submitted(){
 
 
 
-function printSquare(squarePositionX, linePositionY, indices) {//prints each square
+function printSquare(squarePositionX, linePositionY, indices, square) {//prints each square
     const SQUARE = document.createElement("div");
     SQUARE.classList.add("square");
 
@@ -31,36 +31,41 @@ function printSquare(squarePositionX, linePositionY, indices) {//prints each squ
     SQUARE.style.marginTop = `${linePositionY}px`; //distance between lines
     SQUARE.style.zIndex = `${indices[0] + 2}px`; //move upwards in Z direction to avoid collision, +2 because sliceIndex starts at 0 and background z-index is 1
     
+    let opacity=1
+    const halfwayPoint=width/2   
+
+    indices.forEach(index=>{
+        if(index<halfwayPoint){
+            opacity*=index/halfwayPoint
+        }else if(index>halfwayPoint){
+            opacity*=(width-index)/halfwayPoint
+        }else {
+            opacity*=1
+        }
+    });//could make a sphere, if square.opacity is too low just make the opacity 0
+    square.opacity=opacity;
+
     let further = indices[0]/width;
-    SQUARE.style.backgroundColor = `rgba(243, 146, 202,${1-further})`; //make the squares darker as they get further away
+    SQUARE.style.backgroundColor = `rgba(243, 146, 202,${square.opacity})`; //make the squares darker as they get further away
     SQUARE.style.width = `${8}px`; //!make the squares smaller as they get further away
     SQUARE.style.height = `${8}px`; //!^
     //could make it a firework by making the squares more opaque as they near the center of the slices and lines and squares, so:
     /*
     
     let opacity=1
-    const halfwayPoint=width/2
-    let solved = 0
-    function firework(indices){
-        solved++
-        if (solved>3){
-            return opacity
-        }
-        for(let i = 0; i<indices.length; i++){
-            if(indices[0]<halfwayPoint){
-                opacity*=indices[i]/halfwayPoint
-            }else if(indices[0]>halfwayPoint){
-                opacity*=(width-indices[i])/halfwayPoint
-            }else {
-                opacity*=1
-            }
-        }
-        firework(indices[i])
-        return opacity 
-    }
-    
-    
+    const halfwayPoint=width/2   
 
+    indices.forEach(index=>(){
+        if(index<halfwayPoint){
+            opacity*=index/halfwayPoint
+        }else if(indices[i]>halfwayPoint){
+            opacity*=(width-indices[i])/halfwayPoint
+        }else {
+            opacity*=1
+        }
+    });//could make a sphere, if square.opacity is too low just make the opacity 0
+    square.opacity=opacity;
+    
     */
 
     let squareFirstOrLast = (indices[2]==0 || indices[2]==width)
@@ -96,7 +101,8 @@ function calculateCube(width) {//could just move everything from other loops to 
         for (let j = 0; j < width+1; j++) {
             let line = [];
             for (let k = 0; k < width+1; k++) {
-                line.push(new Square(1,8,"red")); // add 1 square to a line, width number of times
+                const square = new Square(1,8,"red");
+                line.push(square); // add 1 square to a line, width number of times
             }
             slice.push(line); // add 1 line of width squares to a slice, width number of times
         }
@@ -122,7 +128,7 @@ function outputCube() {
     let sliceLocation = 0;   //keeps track of where current slice will be printed, first slice/line/square starts at the top left
     let linePositionY = 0;   //keeps track of where current line will be printed
     let squarePositionX = 0; //keeps track of where current square will be printed, first square at the start of the line
-    let indices = [0,0,0];   //keeps track of indices of slices, lines, and squares in that order
+    let indices = [0,0,0];   //keeps track of indices of slices, lines, and squares in that order, changes per square
     
     function lineDisplacement() { //this is the gap added to each subsequent line
         return ((totalDistance - 15 - squareDistance * width) / 2);
@@ -142,7 +148,7 @@ function outputCube() {
             
             line.forEach((square, squareIndex) => { //go right square by square in the line, starting with the left
                 indices[2]=squareIndex //save squareIndex
-                printSquare(squarePositionX, linePositionY, indices); //print square
+                printSquare(squarePositionX, linePositionY, indices, square); //print square
                 squarePositionX += squareDistance -0; //next square's position relative to the left side of the image, goes after each square is printed
 
             })
