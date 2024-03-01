@@ -1,6 +1,6 @@
 .square {
     position: absolute;
-    z-index: 2;
+    z-index: 1;
     height: 8px;
     width: 8px;
     background-color: rgba(43, 146, 202, 1);
@@ -8,7 +8,7 @@
 
 .image {
     position: relative;
-    z-index: 1;
+    z-index: -1;
     height: 800px;
     width: 800px;
     margin: 16px;
