@@ -31,7 +31,7 @@ function printSquare(squarePositionX, linePositionY, indices, square) {//prints 
     SQUARE.style.marginTop = `${linePositionY}px`; //distance between lines
     SQUARE.style.zIndex = `${indices[0] + 2}px`; //move upwards in Z direction to avoid collision, +2 because sliceIndex starts at 0 and background z-index is 1
     
-    let opacity=1
+    let opacity=5
     const halfwayPoint=width/2   
 
     indices.forEach(index=>{
@@ -50,23 +50,6 @@ function printSquare(squarePositionX, linePositionY, indices, square) {//prints 
     SQUARE.style.width = `${8}px`; //!make the squares smaller as they get further away
     SQUARE.style.height = `${8}px`; //!^
     //could make it a firework by making the squares more opaque as they near the center of the slices and lines and squares, so:
-    /*
-    
-    let opacity=1
-    const halfwayPoint=width/2   
-
-    indices.forEach(index=>(){
-        if(index<halfwayPoint){
-            opacity*=index/halfwayPoint
-        }else if(indices[i]>halfwayPoint){
-            opacity*=(width-indices[i])/halfwayPoint
-        }else {
-            opacity*=1
-        }
-    });//could make a sphere, if square.opacity is too low just make the opacity 0
-    square.opacity=opacity;
-    
-    */
 
     let squareFirstOrLast = (indices[2]==0 || indices[2]==width)
     let lineFirstOrLast = (indices[1] == 0 || indices[1] == width)
@@ -86,7 +69,7 @@ function printSquare(squarePositionX, linePositionY, indices, square) {//prints 
 
 //calculate a cube and save each dot in a matrix
 function calculateCube(width) {//could just move everything from other loops to here. That way I act on the data as it is produced
-    class Square{
+    class Square{ //each individual point has its own square object
         constructor(opacity, size, color){
             this.opacity = opacity;
             this.size = size;
@@ -110,14 +93,12 @@ function calculateCube(width) {//could just move everything from other loops to 
     }
     return cube;
 }
-//endpoint = last slice should start at (totalDistance/4) then the square distance changes based on endpoint
-//(totalDistance * (.9325 ** sliceIndex) / width)
-//endpoint should change this^ part of the equation
 
 //calculate distance between squares based on how deep in the cube the square is
 function calculateSquareDistance(sliceIndex) { // x**0 == 1 so first case still works
-    return (totalDistance * (.9325 ** sliceIndex) / width); //exponentially shorten distances between squares in subsequent slices
-}
+    return (totalDistance * ((.5**(1/width)) ** sliceIndex) / width); //shorten distances between squares in subsequent slices
+}//cube size will always remain the same by dynamically changing the factor by which squareDistance is shrunken
+
 
 //func4 will forEach the arrays in the matrix and print them as square elements on html
 function outputCube() {
