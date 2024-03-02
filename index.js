@@ -5,7 +5,7 @@ const WINDOW = document.getElementById("image"); //where cube will be output
 //that involves a lot of math
 
 let totalDistance = 800; //distance of entire cube
-let width = 8; //width of cube in points, but the actual width of the cube will be width+1 so if width==9, the cube will be 10^3
+let width = 39; //width of cube in points, but the actual width of the cube will be width+1 so if width==9, the cube will be 10^3
 
 function submitted() {
     let input1 = document.getElementById("width"); //save width input
@@ -14,7 +14,6 @@ function submitted() {
     let input2 = document.getElementById("distance"); //save distance input
     let newDistance = Number(input2.value);
     totalDistance = newDistance;
-    console.log(width)
     WINDOW.innerHTML = "";
     outputCube();
     return;
@@ -28,53 +27,121 @@ function printSquare(square) {//prints each square
     SQUARE.style.marginLeft = `${square.marginLeft}px`;//distance between squares
     SQUARE.style.marginTop = `${square.marginTop}px`; //distance between lines
     SQUARE.style.zIndex = `${width-square.Zindex}px`; //move forwards in Z direction to avoid collision of elements
-    
-    {
+
+    square.color = `rgba(243, 146, 202, 0)`//make all dots invisible by default
+    const [x,y,z]=[square.Xindex,square.Yindex,square.Zindex]
+    function renderPrism(){ //prints a green prism at the bottom of the cube. Proof of concept for 3D rendering
+        if(!(y==0||y==width)){ 
+            if (x>width/5&&x<width*3/5){
+                if(y>width*4/5){
+                    if(z<width*3/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+        }
+    }
+    //renderPrism()
+    function renderHi(){ //prints "HI"
+        if(!(y==0||y==width)){//avoid first and last lines, so they dont clash with cube outline
+            if (x<=width*3/20){ //H beam 1
+                if(y>=0){
+                    if(z>width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+            if (x>=width*6/20&&x<=width*9/20){ //H beam 2
+                if(y>=0){
+                    if(z>=width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+            if (x>width*3/20&&x<width*6/20){ //H bar
+                if(y>=width*8/20&&y<=width*12/20){
+                    if(z>=width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+            if (x>=width*13/20&&x<=width*16/20){ //I beam
+                if(y>=0){
+                    if(z>=width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+            if (x>=width*11/20&&x<=width*18/20){ //I bar 1
+                if(y<=width*4/20){
+                    if(z>=width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+            if (x>=width*11/20&&x<=width*18/20){ //I bar 2
+                if(y>width*16/20){
+                    if(z>=width*4/5){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                    }
+                }
+            }
+        }
+    }
+    renderHi()
+    SQUARE.style.backgroundColor = `${square.color}`;
+
+    function firework(){
         //rendering firework code, to make the cube more opaque and smaller as it gets closer to the middle
         let newSize = square.size;
         let newOpacity = square.opacity; //as this goes up the firework gets brighter
         const halfwayPoint = width / 2; //used to find the middle of the cube
-        const middle = [halfwayPoint,halfwayPoint,halfwayPoint];
-        square.indices.forEach(index => { //checks Z then Y then X distances
-            if (index < halfwayPoint) {
-                newOpacity *= index / halfwayPoint;
-                newSize = 1/(index / halfwayPoint +newSize);
-            } else if (index > halfwayPoint) {
-                newOpacity *= (width - index) / halfwayPoint;
-                newSize = (width-index) / halfwayPoint +newSize; 
-            } else {
-                newOpacity *= 1;
-                newSize *=1;
-            }
-        });
+        const [h,k,l]=[halfwayPoint,halfwayPoint,halfwayPoint]
+        const radius = ((square.Zindex-h)**2+(square.Yindex-k)**2+(square.Xindex-l)**2)**(1/2)
+        if(radius<0){
+            radius*=-1;
+        }
+
+        newOpacity = 1/(radius-1); //make weird blue squares go away
+        if (radius<=0){
+            newSize = square.size;
+            newOpacity=square.opacity
+        }
+        //actual units of distance is squareDistance | size coefficient makes it look the same as width increases
+        newSize = calculateSquareDistance(radius)/((square.size/width*((radius)**(1/2))+ square.size/width)); //taking a value based on index then turning it into pixels
+        if (radius <=0){ //need to invert the explosion
+            newSize = square.size;
+            newOpacity=square.opacity
+        }
+        if (radius>halfwayPoint){ //this makes a sphere based on radius, which should max out at width/2 at the sides
+            newOpacity=0
+        }
+        
         /*
         To-Do:
-        The reason why im struggling to find what squares to shrink or make translucent is that I don't know exactly how far the point
-        is away from the middle, so I have the idea of using the equation of a sphere to find that distance. r^2=(x-h)^2+(y-k)^2+(z-l)^2
-        where (h,k,l) is the middle, and (x,y,z) is the current square's point, and I'm trying to find r, the distance between the two
-        once I have r, the closer to width/2 r is, the more translucent and large the squares will be. Not sure how to make it look good if
-        half my code relies on index and the other half relies on the actual pixel locations. Pushing this to main just to record my steps
+        Found r by using equation of a sphere to find the radius, but I'm not sure how to make it look good if half my code
+        relies on index and the other half relies on the actual pixel locations. Pushing this to main just to record my steps
 
         also: equation for size could be -sqrt(r)+initialPixels, its a radical function but that sucks it's output would eventually
         be negative. I need to find a rational function with a limit of y=0, where the y intercept is the initialPixels. 
         Maybe 1/(r+initialPixels) but idk. Update: took some time to test with a graphing calculator and this function looks good:
         f(r)=1/(.25*sqrt(r)+1/initialPixels) as the coefficient of sqrt(r) goes up, the size changes quicker
+
+        Update: I'm still confused, now when theres an odd width, the opacity if statement spawns in a couple blue squares, no idea how,
+        and the shrink function also doesn't really make sense, I don't know how to invert it so that the squares shrink only when they
+        move away from the center. Do I put 1/radius somewhere in it? Or width/2-radius?
         */
-
-        //if(newOpacity<1.1){//this makes a sphere (kinda), if opacity is too low just make the opacity 0, to remove outside points
-        //   newOpacity = 0; //problem: the opacity calculation is cubic, not spheric, so when I remove the extra points it looks like 
-        //   //a 4D cube? as I change the value in the if statement it changes shapes
-        //}else{
-        //    newOpacity = 1;
-        //}
+        
         square.opacity = newOpacity; //set new opacity per square
-        square.size = newSize+2; //set new size per square
+        square.size = newSize; //set new size per square
+        square.color=`rgba(243, 146, 202,${square.opacity})` //save color again with new opacity
 
-        //change opacity and size of the cubes 
-        SQUARE.style.backgroundColor = `rgba(243, 146, 202,${square.opacity})`; //make the squares darker as they get further away
-        SQUARE.style.width = `${square.size}px`; //!make the squares smaller as they get further away
-        SQUARE.style.height = `${square.size}px`; //!^
+        //change opacity and size of the squares
+        SQUARE.style.backgroundColor = `${square.color}`; //make the squares darker as they get further away
+        SQUARE.style.width = `${square.size}px`; 
+        SQUARE.style.height = `${square.size}px`; 
     }
+    //firework()
 
     //make a red outline around the cube:
     let squareFirstOrLast = (square.Xindex == 0 || square.Xindex == width);
@@ -103,8 +170,7 @@ function outputCube() {
     let sliceLocation = 0;  //keeps track of where current slice will be printed, first slice/line/square starts at the top left
     let squareYCoord = 0;   //keeps track of where current line will be printed in the slice, first line at the start of the slice
     let squareXCoord = 0;   //keeps track of where current square will be printed in the line, first square at the start of the line
-    //let indices = [0, 0, 0]; //keeps track of indices of slices, lines, and squares in that order, changes per square
-    //calculateCube(width);
+
     class Square { //each individual point has its own square object
         constructor(size, color, indices, squareXCoord, squareYCoord) {
             this.opacity = 5; //removed it from parameters because it was constant and cluttered the args in new Square(...)
@@ -119,24 +185,20 @@ function outputCube() {
         }
     }
 
-    function lineDisplacement() { //this is the gap added to each subsequent line
-        return ((totalDistance - squareDistance * width) / 2);
-    }
-
     if (width < 2) {
         console.log("use more points to see the center");
     }
     // calculate and print the cube
     for (let i = 0; i < width + 1; i++) { // turn this into recursion or width^3 somehow, current way is just too slow
         squareDistance = calculateSquareDistance(i); //goes at start of each slice, each one has unique distance
-        sliceLocation = lineDisplacement(); //this is how much to move each slice, changes per slice
+        sliceLocation = (totalDistance - squareDistance * width) / 2; //this is how much to move each slice, changes per slice
         squareYCoord = sliceLocation; //squareYCoord is the line location, which is also each square's Y coordinate
 
         for (let j = 0; j < width + 1; j++) {
             squareXCoord = sliceLocation; //position of first square of each line
 
             for (let k = 0; k < width + 1; k++) {
-                const square = new Square(9, "red", [i,j,k], squareXCoord, squareYCoord); //make square object
+                const square = new Square(12, `rgba(243, 146, 202,1)`, [i,j,k], squareXCoord, squareYCoord); //make square object
                 printSquare(square); //print square
                 squareXCoord += squareDistance; //next square's position relative to the left side of the image, goes after each square is printed
             }
