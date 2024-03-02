@@ -19,18 +19,9 @@ function submitted() {
     return;
 }
 
-function printSquare(square) {//prints each square
-    //zIndex is a css property, Zindex is a property of custom Square class, defined in outputCube() its confusing but zIndex ends up = to Zindex anyways
-    const SQUARE = document.createElement("div");
-    SQUARE.classList.add("square");
-
-    SQUARE.style.marginLeft = `${square.marginLeft}px`;//distance between squares
-    SQUARE.style.marginTop = `${square.marginTop}px`; //distance between lines
-    SQUARE.style.zIndex = `${width-square.Zindex}px`; //move forwards in Z direction to avoid collision of elements
-
-    square.color = `rgba(243, 146, 202, 0)`//make all dots invisible by default
+function render3D(square){
     const [x,y,z]=[square.Xindex,square.Yindex,square.Zindex]
-    function renderPrism(){ //prints a green prism at the bottom of the cube. Proof of concept for 3D rendering
+    renderPrism = function(){ //prints a green prism at the bottom of the cube. Proof of concept for 3D rendering
         if(!(y==0||y==width)){ 
             if (x>width/5&&x<width*3/5){
                 if(y>width*4/5){
@@ -41,58 +32,56 @@ function printSquare(square) {//prints each square
             }
         }
     }
+
     //renderPrism()
     function renderHi(){ //prints "HI"
         if(!(y==0||y==width)){//avoid first and last lines, so they dont clash with cube outline
-            if (x<=width*3/20){ //H beam 1
-                if(y>=0){
-                    if(z>width*4/5){
+            if(z>width*4/5){ //only render at the back of the cube
+                if (x<=width*3/20){ //H beam 1
+                    if(y>=0){
                         square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
+                    }
+                }
+                if (x>=width*6/20&&x<=width*9/20){ //H beam 2
+                    if(y>=0){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
+                    }
+                }
+                if (x>width*3/20&&x<width*6/20){ //H bar
+                    if(y>=width*8/20&&y<=width*12/20){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
+                    }
+                }
+                if (x>=width*13/20&&x<=width*16/20){ //I beam
+                    if(y>=0){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
+                    }
+                }
+                if (x>=width*11/20&&x<=width*18/20){ //I bar 1
+                    if(y<=width*4/20){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
+                    }
+                }
+                if (x>=width*11/20&&x<=width*18/20){ //I bar 2
+                    if(y>width*16/20){
+                        square.color=`rgba(0, 255, 0,${square.opacity})`
+                        square.render=1
                     }
                 }
             }
-            if (x>=width*6/20&&x<=width*9/20){ //H beam 2
-                if(y>=0){
-                    if(z>=width*4/5){
-                        square.color=`rgba(0, 255, 0,${square.opacity})`
-                    }
-                }
-            }
-            if (x>width*3/20&&x<width*6/20){ //H bar
-                if(y>=width*8/20&&y<=width*12/20){
-                    if(z>=width*4/5){
-                        square.color=`rgba(0, 255, 0,${square.opacity})`
-                    }
-                }
-            }
-            if (x>=width*13/20&&x<=width*16/20){ //I beam
-                if(y>=0){
-                    if(z>=width*4/5){
-                        square.color=`rgba(0, 255, 0,${square.opacity})`
-                    }
-                }
-            }
-            if (x>=width*11/20&&x<=width*18/20){ //I bar 1
-                if(y<=width*4/20){
-                    if(z>=width*4/5){
-                        square.color=`rgba(0, 255, 0,${square.opacity})`
-                    }
-                }
-            }
-            if (x>=width*11/20&&x<=width*18/20){ //I bar 2
-                if(y>width*16/20){
-                    if(z>=width*4/5){
-                        square.color=`rgba(0, 255, 0,${square.opacity})`
-                    }
-                }
-            }
+            
         }
     }
     renderHi()
-    SQUARE.style.backgroundColor = `${square.color}`;
-
     function firework(){
         //rendering firework code, to make the cube more opaque and smaller as it gets closer to the middle
+        square.render = 1
+
         let newSize = square.size;
         let newOpacity = square.opacity; //as this goes up the firework gets brighter
         const halfwayPoint = width / 2; //used to find the middle of the cube
@@ -142,6 +131,31 @@ function printSquare(square) {//prints each square
         SQUARE.style.height = `${square.size}px`; 
     }
     //firework()
+    
+    return
+}
+
+function printSquare(square) {//prints each square
+    //zIndex is a css property, Zindex is a property of custom Square class defined in outputCube() its confusing but zIndex ends up = to Zindex anyways
+    render3D(square)
+
+    //square.color = `rgba(243, 146, 202, 0)`//make all dots invisible by default
+    
+    
+    if (square.render<1){
+        return 
+    }
+    
+    const SQUARE = document.createElement("div");
+    SQUARE.classList.add("square");
+
+    SQUARE.style.marginLeft = `${square.marginLeft}px`;//distance between squares
+    SQUARE.style.marginTop = `${square.marginTop}px`; //distance between lines
+    SQUARE.style.zIndex = `${width-square.Zindex}px`; //move forwards in Z direction to avoid collision of elements
+
+    SQUARE.style.backgroundColor = `${square.color}`;
+
+    //firework()
 
     //make a red outline around the cube:
     let squareFirstOrLast = (square.Xindex == 0 || square.Xindex == width);
@@ -153,6 +167,8 @@ function printSquare(square) {//prints each square
     if (sliceFirstOrLast && (lineFirstOrLast || squareFirstOrLast)) { //make first and last face's edges red
         SQUARE.style.backgroundColor = `rgba(255, 0, 0,${1 - ((square.Zindex - 3) / width)})`;
     }
+
+    
 
     WINDOW.appendChild(SQUARE);
 
@@ -173,6 +189,7 @@ function outputCube() {
 
     class Square { //each individual point has its own square object
         constructor(size, color, indices, squareXCoord, squareYCoord) {
+            this.render = 0; //if == 0, don't render square element, maybe add render method in square class
             this.opacity = 5; //removed it from parameters because it was constant and cluttered the args in new Square(...)
             this.size = size;
             this.color = color;
@@ -183,6 +200,15 @@ function outputCube() {
             this.marginLeft = squareXCoord;  //X pixel position of square
             this.marginTop = squareYCoord;     //Y pixel position of square
         }
+        
+        // render = function(){
+        //     const SQUARE = document.createElement("div");
+        //     SQUARE.classList.add("square");
+
+        //     SQUARE.style.marginLeft = `${square.marginLeft}px`;//distance between squares
+        //     SQUARE.style.marginTop = `${square.marginTop}px`; //distance between lines
+        //     SQUARE.style.zIndex = `${width-square.Zindex}px`; //move forwards in Z direction to avoid collision of elements
+        // }
     }
 
     if (width < 2) {
