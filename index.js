@@ -1,5 +1,8 @@
 const BODY = document.body;
 const WINDOW = document.getElementById("image"); //where cube will be output
+//could use this to program a 3D game, or any video or graphic, I could change individual dots as if they were pixels
+//and I could make them shrink or go invisible as well, which a regular display can't do. Moving the camera will be tough though,
+//that involves a lot of math
 
 let totalDistance = 800; //distance of entire cube
 let width = 8; //width of cube in points, but the actual width of the cube will be width+1 so if width==9, the cube will be 10^3
@@ -24,25 +27,40 @@ function printSquare(square) {//prints each square
 
     SQUARE.style.marginLeft = `${square.marginLeft}px`;//distance between squares
     SQUARE.style.marginTop = `${square.marginTop}px`; //distance between lines
-    SQUARE.style.zIndex = `${square.squareZindex}px`; //move upwards in Z direction to avoid collision, +2 because sliceIndex starts at 0 and background z-index is 1
+    SQUARE.style.zIndex = `${width-square.Zindex}px`; //move forwards in Z direction to avoid collision of elements
     
     {
-        //firework code, to make the cube more opaque and smaller as it gets closer to the middle
+        //rendering firework code, to make the cube more opaque and smaller as it gets closer to the middle
         let newSize = square.size;
         let newOpacity = square.opacity; //as this goes up the firework gets brighter
         const halfwayPoint = width / 2; //used to find the middle of the cube
+        const middle = [halfwayPoint,halfwayPoint,halfwayPoint];
         square.indices.forEach(index => { //checks Z then Y then X distances
             if (index < halfwayPoint) {
                 newOpacity *= index / halfwayPoint;
-                // newSize *= 1/index / halfwayPoint;
+                newSize = 1/(index / halfwayPoint +newSize);
             } else if (index > halfwayPoint) {
                 newOpacity *= (width - index) / halfwayPoint;
-                // newSize *= 1/(width - index) / halfwayPoint;
+                newSize = (width-index) / halfwayPoint +newSize; 
             } else {
                 newOpacity *= 1;
-                // newSize = 0;
+                newSize *=1;
             }
         });
+        /*
+        To-Do:
+        The reason why im struggling to find what squares to shrink or make translucent is that I don't know exactly how far the point
+        is away from the middle, so I have the idea of using the equation of a sphere to find that distance. r^2=(x-h)^2+(y-k)^2+(z-l)^2
+        where (h,k,l) is the middle, and (x,y,z) is the current square's point, and I'm trying to find r, the distance between the two
+        once I have r, the closer to width/2 r is, the more translucent and large the squares will be. Not sure how to make it look good if
+        half my code relies on index and the other half relies on the actual pixel locations. Pushing this to main just to record my steps
+
+        also: equation for size could be -sqrt(r)+initialPixels, its a radical function but that sucks it's output would eventually
+        be negative. I need to find a rational function with a limit of y=0, where the y intercept is the initialPixels. 
+        Maybe 1/(r+initialPixels) but idk. Update: took some time to test with a graphing calculator and this function looks good:
+        f(r)=1/(.25*sqrt(r)+1/initialPixels) as the coefficient of sqrt(r) goes up, the size changes quicker
+        */
+
         //if(newOpacity<1.1){//this makes a sphere (kinda), if opacity is too low just make the opacity 0, to remove outside points
         //   newOpacity = 0; //problem: the opacity calculation is cubic, not spheric, so when I remove the extra points it looks like 
         //   //a 4D cube? as I change the value in the if statement it changes shapes
@@ -50,7 +68,7 @@ function printSquare(square) {//prints each square
         //    newOpacity = 1;
         //}
         square.opacity = newOpacity; //set new opacity per square
-        square.size = newSize; //set new size per square
+        square.size = newSize+2; //set new size per square
 
         //change opacity and size of the cubes 
         SQUARE.style.backgroundColor = `rgba(243, 146, 202,${square.opacity})`; //make the squares darker as they get further away
